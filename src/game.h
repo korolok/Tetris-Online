@@ -14,4 +14,6 @@
 #define CUPSIZE_X 12
 #define CUPSIZE_Y 21
 
+void process_rotations(void);
+
 #endif //GAME_H

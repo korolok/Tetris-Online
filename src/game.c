@@ -1,6 +1,5 @@
 #include "game.h"
 
-<<<<<<< HEAD
 int game_level            = 1;
 int game_over             = 0;
 int total_score           = 0;
@@ -71,34 +70,36 @@ struct tetris_block blocks[] = {
      2}};
 
 struct tetris_block current_block = {0};
-=======
+
 int process_cup_border_collisions(void)
 {
-    int X = 0;
-    int Y = 0;
-    struct tetris_block tmp = currentBlock;
+    struct tetris_block temp_block_a = current_block;
+    struct tetris_block temp_block_b = temp_block_a;
 
-    for (int i = 0; i < tmp.w; ++i)
+    int temp_pos_x;
+    int temp_pos_y;
+    temp_block_a.width = temp_block_b.height;
+    temp_block_a.height = temp_block_b.width;
+
+    for (int i = 0; i < temp_block_b.width; ++i)
     {
-        
-        for (int j = 0; j < tmp.h; ++j)
+        for (int j = 0; j < temp_block_b.height; ++j)
         {
-            X = positionX + i;
-            Y = positionY + j;
-            
-            if (X < 0 || X >= CUPSIZEX)
-            {
-                return 1;
-            }
-            
-            if (Y >= CUPSIZEY)
-            {
-                return 1;
-            }
+            temp_block_a.data[i][j] = temp_block_b.data[temp_block_b.height - j - 1][i];
         }
-        
     }
 
-    return 0;
+    temp_pos_x = position_x;
+    temp_pos_y = position_y;
+
+    position_x -= (temp_block_a.width - temp_block_b.width) / 2;
+    position_y -= (temp_block_a.height - temp_block_b.height) / 2;
+    current_block = temp_block_a;
+
+    if (process_cup_border_collisions())
+    {
+        current_block = temp_block_b;
+        position_x = temp_pos_x;
+        position_y = temp_pos_y;
+    }
 }
->>>>>>> 4da3bc2 (добавлена функция обработки столкновений с границами стакана)
