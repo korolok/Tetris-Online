@@ -57,6 +57,49 @@ int create_client_socket(void)
     return create_socket_tcp();
 }
 
+int accept_client(int listenerSocketDescriptor)
+{
+    int newClientSock = 0;
+    struct sockaddr_in newClientInfo = {0};
+    int sockSize = sizeof(struct sockaddr_in);
+
+    newClientSock = accept(
+                        listenerSocketDescriptor,
+                        (struct sockaddr*)&newClientInfo,
+                        (socklen_t*)&sockSize
+                    );
+
+    char str[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(newClientInfo.sin_addr.s_addr), str, INET_ADDRSTRLEN);
+	printf("Connection established [%s]\n", str);
+
+    return newClientSock;
+}
+
+void listen_for_new_connections(int listenerSocketDescriptor)
+{
+    if (listen(listenerSocketDescriptor, MAX_BACKLOG) == -1)
+    {
+        net_error("Failed to start listening\n", false);
+    }
+    
+    printf("Listening for incoming connections...\n");
+}
+
+void connect_to_server(int clientSocketDescriptor, const char* serverAddress)
+{
+    struct sockaddr_in serverInfo;
+
+    serverInfo.sin_addr.s_addr = inet_addr(serverAddress);
+	serverInfo.sin_family = AF_INET;
+	serverInfo.sin_port = htons(DEFAULT_PORT);
+
+	if (connect(clientSocketDescriptor , (struct sockaddr*)&serverInfo , sizeof(serverInfo)) < 0)
+    {
+        net_error("Failed to connect to the server\n", false);
+    }
+}
+
 void close_socket(int socketToCloseDescriptor)
 {
     if (close(socketToCloseDescriptor) == -1)

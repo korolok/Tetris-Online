@@ -24,14 +24,24 @@
 
 #define DEFAULT_PORT    7070
 #define LOCALHOST       "127.0.0.1"
+#define MAX_BACKLOG     128
 
 static void net_error(const char* message, bool stdErr);
+
+//  The following four procedures return socket descriptor values
 
 static int create_socket_tcp(void);
 //  Should be used at the server side only
 int create_listener_socket(void);
 //  Should be used at the client side only
 int create_client_socket(void);
+int accept_client(int listenerSocketDescriptor);
+
+void listen_for_new_connections(int listenerSocketDescriptor);
+void connect_to_server(
+    int clientSocketDescriptor,
+    const char* serverAddress
+);
 
 void close_socket(int socketToCloseDescriptor);
 void close_sockets(
