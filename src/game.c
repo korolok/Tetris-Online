@@ -1,5 +1,6 @@
 #include "game.h"
 
+<<<<<<< HEAD
 int game_level            = 1;
 int game_over             = 0;
 int total_score           = 0;
@@ -70,3 +71,34 @@ struct tetris_block blocks[] = {
      2}};
 
 struct tetris_block current_block = {0};
+=======
+int process_cup_border_collisions(void)
+{
+    int X = 0;
+    int Y = 0;
+    struct tetris_block tmp = currentBlock;
+
+    for (int i = 0; i < tmp.w; ++i)
+    {
+        
+        for (int j = 0; j < tmp.h; ++j)
+        {
+            X = positionX + i;
+            Y = positionY + j;
+            
+            if (X < 0 || X >= CUPSIZEX)
+            {
+                return 1;
+            }
+            
+            if (Y >= CUPSIZEY)
+            {
+                return 1;
+            }
+        }
+        
+    }
+
+    return 0;
+}
+>>>>>>> 4da3bc2 (добавлена функция обработки столкновений с границами стакана)
