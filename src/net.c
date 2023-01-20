@@ -64,10 +64,10 @@ int accept_client(int listenerSocketDescriptor)
 	int sockSize = sizeof(struct sockaddr_in);
 
 	newClientSock = accept(
-						listenerSocketDescriptor,
-						(struct sockaddr*)&newClientInfo,
-						(socklen_t*)&sockSize
-					);
+		listenerSocketDescriptor,
+		(struct sockaddr*)&newClientInfo,
+		(socklen_t*)&sockSize
+	);
 
 	char str[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(newClientInfo.sin_addr.s_addr), str, INET_ADDRSTRLEN);
@@ -104,7 +104,7 @@ void close_socket(int socketToCloseDescriptor)
 {
 	if (close(socketToCloseDescriptor) == -1)
 	{
-	net_error("Failed to close socket\n", false);
+		net_error("Failed to close socket\n", false);
 	}
 }
 
