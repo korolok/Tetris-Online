@@ -40,7 +40,7 @@ int create_listener_socket(void)
 
     sockListener = create_socket_tcp();
 
-    listenerInfo.sin_family = AF_INET;
+	listenerInfo.sin_family = AF_INET;
 	listenerInfo.sin_addr.s_addr = inet_addr(LOCALHOST);
 	listenerInfo.sin_port = htons(DEFAULT_PORT);
 	
