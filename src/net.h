@@ -43,6 +43,12 @@ void connect_to_server(
 	const char* serverAddress
 );
 
+bool send_data(
+	int socketDescriptor,
+	void* dataBuffer,
+	unsigned int buffSize
+);
+
 void close_socket(int socketToCloseDescriptor);
 void close_sockets(
 	int* socketBuffer,

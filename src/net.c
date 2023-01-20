@@ -29,7 +29,7 @@ int create_socket_tcp(void)
 	{
 		net_error("Failed to create tcp socket\n", false);
 	}
-    
+   
 	return socktcp;
 }
 
@@ -37,9 +37,9 @@ int create_listener_socket(void)
 {
 	int sockListener = 0;
 	struct sockaddr_in listenerInfo = {0};
-
+	
 	sockListener = create_socket_tcp();
-
+	
 	listenerInfo.sin_family = AF_INET;
 	listenerInfo.sin_addr.s_addr = inet_addr(LOCALHOST);
 	listenerInfo.sin_port = htons(DEFAULT_PORT);
@@ -48,7 +48,7 @@ int create_listener_socket(void)
 	{
 		net_error("Failed to bind socket\n", false);
 	}
-        
+		
 	return sockListener;
 }
 
@@ -63,7 +63,7 @@ int accept_client(int listenerSocketDescriptor)
 	struct sockaddr_in newClientInfo = {0};
 	int sockSize = sizeof(struct sockaddr_in);
 
-	newClientSock = accept(
+    newClientSock = accept(
 		listenerSocketDescriptor,
 		(struct sockaddr*)&newClientInfo,
 		(socklen_t*)&sockSize
@@ -72,7 +72,7 @@ int accept_client(int listenerSocketDescriptor)
 	char str[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(newClientInfo.sin_addr.s_addr), str, INET_ADDRSTRLEN);
 	printf("Connection established [%s]\n", str);
-
+	
 	return newClientSock;
 }
 
@@ -82,22 +82,33 @@ void listen_for_new_connections(int listenerSocketDescriptor)
 	{
 		net_error("Failed to start listening\n", false);
 	}
-    
+	
 	printf("Listening for incoming connections...\n");
 }
 
 void connect_to_server(int clientSocketDescriptor, const char* serverAddress)
 {
 	struct sockaddr_in serverInfo;
-
+	
 	serverInfo.sin_addr.s_addr = inet_addr(serverAddress);
 	serverInfo.sin_family = AF_INET;
 	serverInfo.sin_port = htons(DEFAULT_PORT);
-
+	
 	if (connect(clientSocketDescriptor , (struct sockaddr*)&serverInfo , sizeof(serverInfo)) < 0)
 	{
 		net_error("Failed to connect to the server\n", false);
 	}
+}
+
+bool send_data(int socketDescriptor, void* dataBuffer, unsigned int buffSize) 
+{
+	if(send(socketDescriptor, dataBuffer, buffSize, 0) < 0) 
+	{
+		net_error("Failed to send data\n", false);
+		return false;
+	}
+	
+	return true;
 }
 
 void close_socket(int socketToCloseDescriptor)
