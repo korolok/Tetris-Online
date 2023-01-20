@@ -48,6 +48,12 @@ bool send_data(
 	void* dataBuffer,
 	unsigned int buffSize
 );
+bool receive_data(
+	int socketDescriptor,
+	void* dataBuffer,
+	unsigned int buffSize,
+	int* bytesReceived
+);
 
 void close_socket(int socketToCloseDescriptor);
 void close_sockets(

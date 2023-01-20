@@ -111,6 +111,20 @@ bool send_data(int socketDescriptor, void* dataBuffer, unsigned int buffSize)
 	return true;
 }
 
+bool receive_data(
+	int socketDescriptor,
+	void* dataBuffer,
+	unsigned int buffSize,
+	int* bytesReceived
+) {
+	if (*bytesReceived = recv(socketDescriptor, dataBuffer, buffSize, 0) > 0)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
 void close_socket(int socketToCloseDescriptor)
 {
 	if (close(socketToCloseDescriptor) == -1)
