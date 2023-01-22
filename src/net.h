@@ -35,7 +35,7 @@ static int create_socket_tcp(void);
 int create_listener_socket(void);
 //	Should be used at the client side only
 int create_client_socket(void);
-int accept_client(int listenerSocketDescriptor);
+int accept_client(int listener_socket_descriptor);
 
 void listen_for_new_connections(int listener_socket_descriptor);
 void connect_to_server(
@@ -46,7 +46,7 @@ void connect_to_server(
 bool send_data(
 	int socket_descriptor,
 	void* data_buffer,
-	unsigned int buffSize
+	unsigned int buff_size
 );
 bool receive_data(
 	int socket_descriptor,
