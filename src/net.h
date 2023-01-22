@@ -22,7 +22,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define DEFAULT_PORT	7070
+#define DEFAULT_PORT		7070
 #define LOCALHOST		"127.0.0.1"
 #define MAX_BACKLOG		128
 
