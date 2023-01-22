@@ -63,7 +63,7 @@ int accept_client(int listener_socket_descriptor)
 	struct sockaddr_in new_client_info = {0};
 	int sock_size = sizeof(struct sockaddr_in);
 
-    new_client_sock = accept(
+	new_client_sock = accept(
 		listener_socket_descriptor,
 		(struct sockaddr*)&new_client_info,
 		(socklen_t*)&sock_size
