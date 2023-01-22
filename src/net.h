@@ -26,7 +26,7 @@
 #define LOCALHOST		"127.0.0.1"
 #define MAX_BACKLOG		128
 
-static void net_error(const char* message, bool stdErr);
+static void net_error(const char* message, bool std_err);
 
 //	The following four procedures return socket descriptor values
 
@@ -37,27 +37,27 @@ int create_listener_socket(void);
 int create_client_socket(void);
 int accept_client(int listenerSocketDescriptor);
 
-void listen_for_new_connections(int listenerSocketDescriptor);
+void listen_for_new_connections(int listener_socket_descriptor);
 void connect_to_server(
-	int clientSocketDescriptor,
-	const char* serverAddress
+	int client_socket_descriptor,
+	const char* server_address
 );
 
 bool send_data(
-	int socketDescriptor,
-	void* dataBuffer,
+	int socket_descriptor,
+	void* data_buffer,
 	unsigned int buffSize
 );
 bool receive_data(
-	int socketDescriptor,
-	void* dataBuffer,
-	unsigned int buffSize,
-	int* bytesReceived
+	int socket_descriptor,
+	void* data_duffer,
+	unsigned int buff_dize,
+	int* bytes_received
 );
 
-void close_socket(int socketToCloseDescriptor);
+void close_socket(int socket_to_close_descriptor);
 void close_sockets(
-	int* socketBuffer,
+	int* socket_buffer,
 	unsigned int size
 );
 

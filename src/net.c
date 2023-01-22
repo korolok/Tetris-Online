@@ -7,9 +7,9 @@
 
 #include "net.h"
 
-void net_error(const char* message, bool stdErr)
+void net_error(const char* message, bool std_err)
 {
-	if (!stdErr)
+	if (!std_err)
 	{
 		perror(message);
 	}
@@ -23,33 +23,33 @@ void net_error(const char* message, bool stdErr)
 
 int create_socket_tcp(void)
 {
-	int socktcp = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int sock_tcp = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	if (socktcp == -1)
+	if (sock_tcp == -1)
 	{
 		net_error("Failed to create tcp socket\n", false);
 	}
    
-	return socktcp;
+	return sock_tcp;
 }
 
 int create_listener_socket(void)
 {
-	int sockListener = 0;
-	struct sockaddr_in listenerInfo = {0};
+	int sock_listener = 0;
+	struct sockaddr_in listener_info = {0};
 	
-	sockListener = create_socket_tcp();
+	sock_listener = create_socket_tcp();
 	
-	listenerInfo.sin_family = AF_INET;
-	listenerInfo.sin_addr.s_addr = inet_addr(LOCALHOST);
-	listenerInfo.sin_port = htons(DEFAULT_PORT);
+	listener_info.sin_family = AF_INET;
+	listener_info.sin_addr.s_addr = inet_addr(LOCALHOST);
+	listener_info.sin_port = htons(DEFAULT_PORT);
 	
-	if (bind(sockListener, (struct sockaddr*)&listenerInfo, sizeof(listenerInfo)) == -1)
+	if (bind(sock_listener, (struct sockaddr*)&listener_info, sizeof(listener_info)) == -1)
 	{
 		net_error("Failed to bind socket\n", false);
 	}
 		
-	return sockListener;
+	return sock_listener;
 }
 
 int create_client_socket(void)
@@ -57,28 +57,28 @@ int create_client_socket(void)
 	return create_socket_tcp();
 }
 
-int accept_client(int listenerSocketDescriptor)
+int accept_client(int listener_socket_descriptor)
 {
-	int newClientSock = 0;
-	struct sockaddr_in newClientInfo = {0};
-	int sockSize = sizeof(struct sockaddr_in);
+	int new_client_sock = 0;
+	struct sockaddr_in new_client_info = {0};
+	int sock_size = sizeof(struct sockaddr_in);
 
-    newClientSock = accept(
-		listenerSocketDescriptor,
-		(struct sockaddr*)&newClientInfo,
-		(socklen_t*)&sockSize
+    new_client_sock = accept(
+		listener_socket_descriptor,
+		(struct sockaddr*)&new_client_info,
+		(socklen_t*)&sock_size
 	);
 
 	char str[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &(newClientInfo.sin_addr.s_addr), str, INET_ADDRSTRLEN);
+	inet_ntop(AF_INET, &(new_client_info.sin_addr.s_addr), str, INET_ADDRSTRLEN);
 	printf("Connection established [%s]\n", str);
 	
-	return newClientSock;
+	return new_client_sock;
 }
 
-void listen_for_new_connections(int listenerSocketDescriptor)
+void listen_for_new_connections(int listener_socket_descriptor)
 {
-	if (listen(listenerSocketDescriptor, MAX_BACKLOG) == -1)
+	if (listen(listener_socket_descriptor, MAX_BACKLOG) == -1)
 	{
 		net_error("Failed to start listening\n", false);
 	}
@@ -86,23 +86,23 @@ void listen_for_new_connections(int listenerSocketDescriptor)
 	printf("Listening for incoming connections...\n");
 }
 
-void connect_to_server(int clientSocketDescriptor, const char* serverAddress)
+void connect_to_server(int client_socket_sescriptor, const char* server_address)
 {
-	struct sockaddr_in serverInfo;
+	struct sockaddr_in server_info;
 	
-	serverInfo.sin_addr.s_addr = inet_addr(serverAddress);
-	serverInfo.sin_family = AF_INET;
-	serverInfo.sin_port = htons(DEFAULT_PORT);
+	server_info.sin_addr.s_addr = inet_addr(server_address);
+	server_info.sin_family = AF_INET;
+	server_info.sin_port = htons(DEFAULT_PORT);
 	
-	if (connect(clientSocketDescriptor , (struct sockaddr*)&serverInfo , sizeof(serverInfo)) < 0)
+	if (connect(client_socket_sescriptor , (struct sockaddr*)&server_info , sizeof(server_info)) < 0)
 	{
 		net_error("Failed to connect to the server\n", false);
 	}
 }
 
-bool send_data(int socketDescriptor, void* dataBuffer, unsigned int buffSize) 
+bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size) 
 {
-	if(send(socketDescriptor, dataBuffer, buffSize, 0) < 0) 
+	if(send(socket_descriptor, data_buffer, buff_size, 0) < 0) 
 	{
 		net_error("Failed to send data\n", false);
 		return false;
@@ -112,12 +112,12 @@ bool send_data(int socketDescriptor, void* dataBuffer, unsigned int buffSize)
 }
 
 bool receive_data(
-	int socketDescriptor,
-	void* dataBuffer,
-	unsigned int buffSize,
-	int* bytesReceived
+	int socket_descriptor,
+	void* data_buffer,
+	unsigned int buff_size,
+	int* bytes_received
 ) {
-	if (*bytesReceived = recv(socketDescriptor, dataBuffer, buffSize, 0) > 0)
+	if (*bytes_received = recv(socket_descriptor, data_buffer, buff_size, 0) > 0)
 	{
 		return true;
 	}
@@ -125,18 +125,18 @@ bool receive_data(
 	return false;
 }
 
-void close_socket(int socketToCloseDescriptor)
+void close_socket(int socket_to_close_descriptor)
 {
-	if (close(socketToCloseDescriptor) == -1)
+	if (close(socket_to_close_descriptor) == -1)
 	{
 		net_error("Failed to close socket\n", false);
 	}
 }
 
-void close_sockets(int* socketBuffer, unsigned int size)
+void close_sockets(int* socket_buffer, unsigned int size)
 {
 	for (unsigned int i = 0; i < size; ++i)
 	{
-		close_socket(socketBuffer[i]);
+		close_socket(socket_buffer[i]);
 	}
 }
