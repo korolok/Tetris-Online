@@ -24,7 +24,7 @@
 
 #define DEFAULT_PORT    7070
 #define LOCALHOST       "127.0.0.1"
-#define MAX_BACKLOG	    128
+#define MAX_BACKLOG     128
 
 static void net_error(const char* message, bool std_err);
 
