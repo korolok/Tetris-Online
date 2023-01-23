@@ -22,43 +22,28 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define DEFAULT_PORT		7070
-#define LOCALHOST		"127.0.0.1"
-#define MAX_BACKLOG		128
+#define DEFAULT_PORT    7070
+#define LOCALHOST       "127.0.0.1"
+#define MAX_BACKLOG	    128
 
 static void net_error(const char* message, bool std_err);
 
-//	The following four procedures return socket descriptor values
+//  The following four procedures return socket descriptor values
 
 static int create_socket_tcp(void);
-//	Should be used at the server side only
+//  Should be used at the server side only
 int create_listener_socket(void);
-//	Should be used at the client side only
+//  Should be used at the client side only
 int create_client_socket(void);
 int accept_client(int listener_socket_descriptor);
 
 void listen_for_new_connections(int listener_socket_descriptor);
-void connect_to_server(
-	int client_socket_descriptor,
-	const char* server_address
-);
+void connect_to_server(int client_socket_descriptor, const char* server_address);
 
-bool send_data(
-	int socket_descriptor,
-	void* data_buffer,
-	unsigned int buff_size
-);
-bool receive_data(
-	int socket_descriptor,
-	void* data_duffer,
-	unsigned int buff_dize,
-	int* bytes_received
-);
+bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size);
+bool receive_data(int socket_descriptor, void* data_duffer, unsigned int buff_dize, int* bytes_received);
 
 void close_socket(int socket_to_close_descriptor);
-void close_sockets(
-	int* socket_buffer,
-	unsigned int size
-);
+void close_sockets(int* socket_buffer, unsigned int size);
 
 #endif //NET_H
