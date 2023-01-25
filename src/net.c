@@ -7,7 +7,7 @@
 
 #include "net.h"
 
-void net_error(const char* message, bool std_err)
+static void net_error(const char* message, bool std_err)
 {
     if (!std_err)
     {
@@ -37,8 +37,10 @@ int create_listener_socket(void)
 {
     int sock_listener = 0;
     struct sockaddr_in listener_info = {0};
+    bool enable = true;
 
     sock_listener = create_socket_tcp();
+    setsockopt(sock_listener, SOL_SOCKET, SOCK_NONBLOCK, &enable, sizeof(enable));
 
     listener_info.sin_family = AF_INET;
     listener_info.sin_addr.s_addr = inet_addr(LOCALHOST);
@@ -71,8 +73,16 @@ int accept_client(int listener_socket_descriptor)
 
     char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(new_client_info.sin_addr.s_addr), str, INET_ADDRSTRLEN);
-    printf("Connection established [%s]\n", str);
-
+    
+    if (strcmp(str, "0.0.0.0") != 0)
+    {
+        printf("Connection established [%s]\n", str);
+    }
+    else
+    {
+        printf("Faulty connection [%s]\n", str);
+    }
+    
     return new_client_sock;
 }
 
@@ -113,7 +123,7 @@ bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size)
 
 bool receive_data(int socket_descriptor, void* data_buffer, unsigned int buff_size, int* bytes_received)
 {
-    if (*bytes_received = recv(socket_descriptor, data_buffer, buff_size, 0) > 0)
+    if ((*bytes_received = recv(socket_descriptor, data_buffer, buff_size, 0)) > 0)
     {
         return true;
     }

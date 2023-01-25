@@ -25,12 +25,11 @@
 #define DEFAULT_PORT    7070
 #define LOCALHOST       "127.0.0.1"
 #define MAX_BACKLOG     128
-
-static void net_error(const char* message, bool std_err);
+#define SOCKET_NULL     -100
 
 //  The following four procedures return socket descriptor values
 
-static int create_socket_tcp(void);
+int create_socket_tcp(void);
 //  Should be used at the server side only
 int create_listener_socket(void);
 //  Should be used at the client side only
