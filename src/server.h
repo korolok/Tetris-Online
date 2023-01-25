@@ -30,6 +30,10 @@ void stop_accepting_clients_handler(int sigusr);
 void initialize_server(void);
 void accept_clients(bool* stop_accepting);
 
+//  Returns an int value which represents the key pressed by currently active player.
+//  (In accordance to keycode chart)
+unsigned int receive_data_from_clients(void);
+
 void cleanup();
 
 int main(void);

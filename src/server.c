@@ -85,6 +85,23 @@ void accept_clients(bool* stop_accepting)
     }
 }
 
+unsigned int receive_data_from_clients(void)
+{   
+    unsigned int    keycode         = 0;
+    int             bytes_received  = 0;
+
+    receive_data(players[current_active_player].socket, &keycode, sizeof(keycode), &bytes_received);
+
+#ifdef DEBUG
+    if (bytes_received == 0)
+    {
+        printf("Failed to receive data from client\n");
+    }
+#endif
+
+    return keycode;
+}
+
 void cleanup()
 {
     close_socket(listener_socket);
