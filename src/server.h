@@ -32,7 +32,8 @@ void accept_clients(bool* stop_accepting);
 
 //  Returns an int value which represents the key pressed by currently active player.
 //  (In accordance to keycode chart)
-unsigned int receive_data_from_clients(void);
+unsigned int 	receive_data_from_clients(void);
+void            send_data_to_clients(void* buffer, unsigned int buff_size);
 
 void cleanup();
 

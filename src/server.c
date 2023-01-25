@@ -102,6 +102,14 @@ unsigned int receive_data_from_clients(void)
     return keycode;
 }
 
+void send_data_to_clients(void* buffer, unsigned int buff_size)
+{
+    for (unsigned int i = 0; i < players_connected; ++i)
+    {
+        send_data(players[i].socket, buffer, buff_size);
+    }
+}
+
 void cleanup()
 {
     close_socket(listener_socket);
