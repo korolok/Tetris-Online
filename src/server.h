@@ -28,6 +28,7 @@ void interrupt_handler(int sigint);
 void stop_accepting_clients_handler(int sigusr);
 
 void initialize_server(void);
+void accept_clients(bool* stop_accepting);
 
 void cleanup();
 

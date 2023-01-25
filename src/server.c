@@ -29,6 +29,62 @@ void initialize_server(void)
     signal(SIGINT, interrupt_handler);
 }
 
+void accept_clients(bool* stop_accepting)
+{
+    const unsigned int  CODE = CODE_TO_REPLY_WITH_NAME;
+    char                name_buffer[NAME_BUFFER_SIZE] = {0};
+    int                 bytes_received = 0;
+
+    while (players_connected != MAX_PLAYER_COUNT && *stop_accepting == false)
+    {   
+        players[players_connected].socket = SOCKET_NULL;
+
+        // Accept client
+        while (*stop_accepting == false)
+        {
+            players[players_connected].socket = accept_client(listener_socket);
+
+            if (players[players_connected].socket != SOCKET_NULL)
+            {
+                break;
+            }
+        }
+
+        if (*stop_accepting)
+        {
+            break;
+        }
+		
+        // Ask client for their name
+        memset(&name_buffer, 0, NAME_BUFFER_SIZE);
+        send_data(players[players_connected].socket, (void*)&CODE, sizeof(CODE));
+        receive_data(players[players_connected].socket, &name_buffer, NAME_BUFFER_SIZE, &bytes_received);
+
+        if (bytes_received == 0)
+        {
+            printf("Failed to receive player's name\n");
+            exit(EXIT_FAILURE);
+        }
+        
+        players[players_connected].name = name_buffer;
+        ++players_connected;
+	}
+
+#ifdef DEBUG
+    printf("Connected clients - %d\n", players_connected);
+    for (unsigned int i = 0; i < players_connected; ++i)
+    {
+        printf("Player #%d name: %s | Socket: %d\n", i, players[i].name, players[i].socket);
+    }
+#endif
+    
+    if (players_connected == 0) 
+    {
+        printf("Failed to accept clients\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
 void cleanup()
 {
     close_socket(listener_socket);
