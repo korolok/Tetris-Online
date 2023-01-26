@@ -42,9 +42,9 @@ void accept_clients(bool* stop_accepting)
         // Accept client
         while (*stop_accepting == false)
         {
-            players[players_connected].socket = accept_client(listener_socket);
+            players[players_connected].socket = accept_client(listener_socket, true);
 
-            if (players[players_connected].socket != SOCKET_NULL)
+            if (players[players_connected].socket != SOCKET_NULL && players[players_connected].socket != -1)
             {
                 break;
             }
@@ -66,7 +66,9 @@ void accept_clients(bool* stop_accepting)
             exit(EXIT_FAILURE);
         }
         
-        players[players_connected].name = name_buffer;
+        strcpy(players[players_connected].name, name_buffer);
+        printf("Player %s connected\n", players[players_connected].name);
+        
         ++players_connected;
 	}
 
@@ -129,7 +131,7 @@ int main(void)
     accept_clients(&should_stop_accepting_clients);
 
     cleanup();
-    
+
     exit(EXIT_SUCCESS);
     return 0;
 }

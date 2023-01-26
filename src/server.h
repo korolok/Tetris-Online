@@ -4,14 +4,14 @@
 #include <stdbool.h>
 #include <signal.h>
 
-// Code to ask client to send their name back
+//  Code to ask client to send their name back
 #define CODE_TO_REPLY_WITH_NAME     133
 #define MAX_PLAYER_COUNT            7
 #define NAME_BUFFER_SIZE            32
 
 struct Player
 {
-    const char      *name;
+    char            name[NAME_BUFFER_SIZE];
     unsigned int    shape_type;
     int             socket;
 };
