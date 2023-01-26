@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -34,7 +35,7 @@ int create_socket_tcp(void);
 int create_listener_socket(void);
 //  Should be used at the client side only
 int create_client_socket(void);
-int accept_client(int listener_socket_descriptor);
+int accept_client(int listener_socket_descriptor, bool is_silent);
 
 void listen_for_new_connections(int listener_socket_descriptor);
 void connect_to_server(int client_socket_descriptor, const char* server_address);

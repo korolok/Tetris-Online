@@ -37,10 +37,11 @@ int create_listener_socket(void)
 {
     int sock_listener = 0;
     struct sockaddr_in listener_info = {0};
-    bool enable = true;
+    int enable = 1;
 
     sock_listener = create_socket_tcp();
-    setsockopt(sock_listener, SOL_SOCKET, SOCK_NONBLOCK, &enable, sizeof(enable));
+    fcntl(sock_listener, F_SETFL, SOCK_NONBLOCK);
+    setsockopt(sock_listener, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
 
     listener_info.sin_family = AF_INET;
     listener_info.sin_addr.s_addr = inet_addr(LOCALHOST);
@@ -59,7 +60,7 @@ int create_client_socket(void)
     return create_socket_tcp();
 }
 
-int accept_client(int listener_socket_descriptor)
+int accept_client(int listener_socket_descriptor, bool is_silent)
 {
     int new_client_sock = 0;
     struct sockaddr_in new_client_info = {0};
@@ -74,15 +75,18 @@ int accept_client(int listener_socket_descriptor)
     char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(new_client_info.sin_addr.s_addr), str, INET_ADDRSTRLEN);
     
-    if (strcmp(str, "0.0.0.0") != 0)
+    if (!is_silent)
     {
-        printf("Connection established [%s]\n", str);
+        if (strcmp(str, "0.0.0.0") != 0)
+        {
+            printf("Connection established [%s]\n", str);
+        }
+        else
+        {
+            printf("Faulty connection [%s]\n", str);
+        }
     }
-    else
-    {
-        printf("Faulty connection [%s]\n", str);
-    }
-    
+
     return new_client_sock;
 }
 
