@@ -5,7 +5,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-int generate_random_number(int minval, int maxval);
+void    set_random_seed(void)
+int     generate_random_number(int minval, int maxval);
+
 long long get_timestamp_in_milliseconds(void);
 
 #endif //   UTIL_H

@@ -1,8 +1,12 @@
 #include "util.h"
 
-int generate_random_number(int minval, int maxval)
+void set_random_seed(void)
 {
     srand((int)time(NULL));
+}
+
+int generate_random_number(int minval, int maxval)
+{
     return (rand() % (maxval - minval + 1)) + minval;
 }
 
