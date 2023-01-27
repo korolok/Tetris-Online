@@ -87,6 +87,14 @@ void accept_clients(bool* stop_accepting)
     }
 }
 
+void set_clients_non_blocking(void)
+{
+    for (unsigned int i = 0; i < players_connected; ++i)
+    {
+        set_socket_non_blocking(players[i].socket);
+    }
+}
+
 unsigned int receive_data_from_clients(void)
 {   
     unsigned int    keycode         = 0;
