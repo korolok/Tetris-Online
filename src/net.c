@@ -40,7 +40,7 @@ int create_listener_socket(void)
     int enable = 1;
 
     sock_listener = create_socket_tcp();
-    fcntl(sock_listener, F_SETFL, SOCK_NONBLOCK);
+    set_socket_non_blocking(sock_listener);
     setsockopt(sock_listener, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
 
     listener_info.sin_family = AF_INET;
@@ -133,6 +133,14 @@ bool receive_data(int socket_descriptor, void* data_buffer, unsigned int buff_si
     }
     
     return false;
+}
+
+void set_socket_non_blocking(int socket_descriptor)
+{
+    if (fcntl(socket_descriptor, F_SETFL, SOCK_NONBLOCK) == -1)
+    {
+        net_error("Failed to set socket non-blocking\n", false);
+    }
 }
 
 void close_socket(int socket_to_close_descriptor)

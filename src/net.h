@@ -41,7 +41,9 @@ void listen_for_new_connections(int listener_socket_descriptor);
 void connect_to_server(int client_socket_descriptor, const char* server_address);
 
 bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size);
-bool receive_data(int socket_descriptor, void* data_duffer, unsigned int buff_dize, int* bytes_received);
+bool receive_data(int socket_descriptor, void* data_duffer, unsigned int buff_size, int* bytes_received);
+
+void set_socket_non_blocking(int socket_descriptor);
 
 void close_socket(int socket_to_close_descriptor);
 void close_sockets(int* socket_buffer, unsigned int size);
