@@ -5,5 +5,6 @@
 #define KEY_ARROW_DOWN      2      
 #define KEY_ARROW_LEFT      3
 #define KEY_ARROW_RIGHT     4
+#define KEY_ESCAPE          27
 
 #endif //   KEYCODES_H
