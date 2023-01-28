@@ -71,7 +71,7 @@ struct tetris_block blocks[] = {
 
 struct tetris_block current_block = {0};
 
-int process_cup_border_collisions(void)
+void process_rotations(void)
 {
     struct tetris_block temp_block_a = current_block;
     struct tetris_block temp_block_b = temp_block_a;
@@ -102,4 +102,31 @@ int process_cup_border_collisions(void)
         position_x = temp_pos_x;
         position_y = temp_pos_y;
     }
+}
+
+int process_cup_border_collisions(void)
+{
+    for (int i = 0; i < current_block.height; ++i)
+    {
+        for (int j = 0; j < current_block.width; ++j)
+        {
+            if (current_block.data[i][j] != ' ' && cup[position_y + i][position_x + j] != ' ')
+            {
+                return 1;
+            }
+        }
+    }
+
+    for (int i = 0; i < current_block.height; ++i)
+    {
+        for (int j = 0; j < current_block.width; ++j)
+        {
+            if (current_block.data[i][j] != ' ' && cup[position_y + i][position_x + j] != ' ')
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }

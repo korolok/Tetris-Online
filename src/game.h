@@ -15,5 +15,6 @@
 #define CUPSIZE_Y 21
 
 void process_rotations(void);
+int process_cup_border_collisions(void);
 
 #endif //GAME_H
