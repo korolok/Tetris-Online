@@ -114,11 +114,10 @@ void connect_to_server(int client_socket_sescriptor, const char* server_address)
     }
 }
 
-bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size) 
+bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size)
 {
-    if(send(socket_descriptor, data_buffer, buff_size, 0) < 0) 
+    if (send(socket_descriptor, data_buffer, buff_size, 0) < 0)
     {
-        net_error("Failed to send data\n", false);
         return false;
     }
 
