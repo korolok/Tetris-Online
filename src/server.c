@@ -180,6 +180,76 @@ void process_data(void)
     }
 }
 
+void start_game(void)
+{
+    set_user_count_pointer(&players_connected);
+
+    for (int i = 0; i < (int)players_connected; ++i)
+    {
+        players[i].shape_type = get_shapes_type(i);
+    }
+
+    spawn_new_shape();
+
+    for (int i = 0; i < (int)players_connected; ++i)
+    {
+        if (players[i].shape_type == get_id_current_shape())
+        {
+            current_active_player = i;
+            break;
+        }
+    }
+    
+    char buffer_to_send[1024] = {0};
+
+    for (int i = 0; i < (int)players_connected; ++i)
+    {
+        char buffer_shape_type_message[37] = {0};
+        switch (players[i].shape_type)
+        {
+
+        case 0:
+            buffer_shape_type_message[0] = 'T';
+            break;
+
+        case 1:
+            buffer_shape_type_message[0] = 'O';
+            break;
+
+        case 2:
+            buffer_shape_type_message[0] = 'I';
+            break;
+
+        case 3:
+            buffer_shape_type_message[0] = 'J';
+            break;
+
+        case 4:
+            buffer_shape_type_message[0] = 'L';
+            break;
+
+        case 5:
+            buffer_shape_type_message[0] = 'Z';
+            break;
+
+        case 6:
+            buffer_shape_type_message[0] = 'S';
+            break;
+        }
+
+        buffer_shape_type_message[1] = ' ';
+        buffer_shape_type_message[2] = '-';
+        buffer_shape_type_message[3] = ' ';
+
+        strcat(buffer_shape_type_message, players[i].name);
+
+        buffer_shape_type_message[strlen(buffer_shape_type_message)] = '\n';
+        strcat(buffer_to_send, buffer_shape_type_message);
+    }
+
+    send_data_to_clients(buffer_to_send, strlen(buffer_to_send));
+}
+
 int main(void)
 {
     initialize_server();

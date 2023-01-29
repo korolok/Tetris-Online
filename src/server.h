@@ -45,6 +45,7 @@ void cleanup(void);
 
 void calculate_drop_down_time(void);
 void process_data(void);
+void start_game(void);
 
 int main(void);
 
