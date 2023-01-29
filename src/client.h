@@ -41,7 +41,9 @@ void reply_with_name(void);
 void nc_cleanup(void);
 void nc_init(void);
 void send_data_to_server(int input_code);
-int receive_data_from_server();
+bool receive_data_from_server();
 int procces_input(int key_code);
+void nc_setup_colors(void);
+void draw_cup(void);
 
 #endif // CLIENT_H

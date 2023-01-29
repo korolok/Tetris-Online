@@ -19,6 +19,31 @@ int main()
 
     nc_init();
 
+    while (client_input != KEY_ESCAPE)
+    {
+        client_input = getch();
+        flushinp();
+        int input_code = procces_input(client_input);
+
+        send_data_to_server(input_code);
+        
+        if (!receive_data_from_server())
+        {
+            break;
+        }
+        
+        draw_cup();
+    }
+
+    if (setup_as_a_server)
+    {
+        system("pkill server");
+    }
+
+    system("clear");
+    printf("\n\n\n\n\n\t\t Game over! Total score = %d\n", score);
+    sleep(5);
+
     return 0;
 }
 
@@ -184,17 +209,17 @@ void send_data_to_server(int input_code)
     }
 }
 
-int receive_data_from_server()
+bool receive_data_from_server()
 {
     if (!receive_data(sock, cup, CUP_SIZE, &bytes_received))
     {
-        return 1;
+        return false;
     }
     if (!receive_data(sock, &score, sizeof(score), &bytes_received))
     {
-        return 1;
+        return false;
     }
-    return 0;
+    return true;
 }
 
 int procces_input(int key_code)
@@ -216,4 +241,95 @@ int procces_input(int key_code)
         return KEY_ARROW_RIGHT;
     }
     return 0;
+}
+
+void nc_setup_colors(void)
+{
+    start_color();
+
+    init_pair(1, COLOR_WHITE, COLOR_WHITE);
+    init_pair(2, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(3, COLOR_MAGENTA, COLOR_MAGENTA);
+    init_pair(4, COLOR_CYAN, COLOR_CYAN);
+    init_pair(5, COLOR_BLUE, COLOR_BLUE);
+    init_pair(6, COLOR_RED, COLOR_RED);
+    init_pair(7, COLOR_GREEN, COLOR_GREEN);
+}
+
+void draw_cup(void)
+{
+    nc_setup_colors();
+    erase();
+
+    for (int i = 0; cup[i] != '\0'; ++i)
+    {
+        if (cup[i] == '|')
+        {
+            addch('|' | COLOR_PAIR(1));
+        }
+        else if (cup[i] == '-')
+        {
+            addch('-' | COLOR_PAIR(1));
+            addch('-' | COLOR_PAIR(1));
+        }
+        else if (cup[i] == 'O')
+        {
+            addch('O' | COLOR_PAIR(2));
+            addch('O' | COLOR_PAIR(2));
+        }
+        else if (cup[i] == 'T')
+        {
+            addch('T' | COLOR_PAIR(3));
+            addch('T' | COLOR_PAIR(3));
+        }
+        else if (cup[i] == 'I')
+        {
+            addch('I' | COLOR_PAIR(4));
+            addch('I' | COLOR_PAIR(4));
+        }
+        else if (cup[i] == 'J')
+        {
+            addch('J' | COLOR_PAIR(5));
+            addch('J' | COLOR_PAIR(5));
+        }
+        else if (cup[i] == 'L')
+        {
+            addch('L' | COLOR_PAIR(6));
+            addch('L' | COLOR_PAIR(6));
+        }
+        else if (cup[i] == 'Z')
+        {
+            addch('Z' | COLOR_PAIR(6));
+            addch('Z' | COLOR_PAIR(6));
+        }
+        else if (cup[i] == 'S')
+        {
+            addch('S' | COLOR_PAIR(7));
+            addch('S' | COLOR_PAIR(7));
+        }
+        else
+        {
+            printw(" %c", cup[i]);
+        }
+    }
+
+    mvwprintw(stdscr, 5, 25, "SCORE: %d", score);
+    
+    int row = 6;
+    int col = 25;
+
+    for (size_t i = 0; i <= strlen(client_shape_info); ++i)
+    {
+        if (client_shape_info[i] != '\n')
+        {
+            mvwprintw(stdscr, row, col, "%c", client_shape_info[i]);
+            ++col;
+        }
+        else if (client_shape_info[i] == '\n')
+        {
+            ++row;
+            col = 25;
+        }
+    }
+    refresh();
 }
