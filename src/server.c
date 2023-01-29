@@ -1,5 +1,7 @@
 #include "server.h"
 #include "net.h"
+#include "game.h"
+#include "util.h"
 
 void interrupt_handler(int sigint)
 {
@@ -120,7 +122,7 @@ void send_data_to_clients(void* buffer, unsigned int buff_size)
     }
 }
 
-void cleanup()
+void cleanup(void)
 {
     close_socket(listener_socket);
 
@@ -129,6 +131,51 @@ void cleanup()
         for (unsigned int i = 0; i < players_connected; ++i)
         {
             close_socket(players[i].socket);
+        }
+    }
+}
+
+void calculate_drop_down_time(void)
+{
+    long long delta_time = 0;
+
+    current_time = get_timestamp_in_milliseconds();
+    delta_time = current_time - previous_time;
+    previous_time = current_time;
+    drop_down_time += delta_time;
+}
+
+void process_data(void)
+{
+    if (current_key != 0)
+    {
+        shape_control(current_key);
+        current_key = 0;
+    }
+
+    calculate_drop_down_time();
+
+    if (drop_down_time >= (800 - 50 * get_game_level()))
+    {
+        drop_down_time = 0;
+        shape_drop();
+        form_cup();
+    }
+
+    for (int i = 0; i < (int)players_connected; ++i)
+    {
+        if (players[i].shape_type == get_id_current_shape())
+        {
+            //При смене текущего игрока очищаем буфер ввода
+            int current_player = current_active_player;
+
+            current_active_player = i;
+
+            if(current_player != i)
+            {
+                while(receive_data_from_clients() != 0);
+            }
+            break;
         }
     }
 }

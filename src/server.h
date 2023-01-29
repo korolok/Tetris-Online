@@ -20,9 +20,14 @@ struct Player players[MAX_PLAYER_COUNT];
 
 int listener_socket;
 
+int          current_key                    = 0;
 unsigned int players_connected              = 0;
 unsigned int current_active_player          = 0;
 bool         should_stop_accepting_clients  = false;
+
+long long current_time   = 0;
+long long previous_time  = 0;
+long long drop_down_time = 0;
 
 void interrupt_handler(int sigint);
 void stop_accepting_clients_handler(int sigusr);
@@ -36,7 +41,10 @@ void set_clients_non_blocking(void);
 unsigned int 	receive_data_from_clients(void);
 void            send_data_to_clients(void* buffer, unsigned int buff_size);
 
-void cleanup();
+void cleanup(void);
+
+void calculate_drop_down_time(void);
+void process_data(void);
 
 int main(void);
 
