@@ -40,5 +40,6 @@ void *start_server();
 void reply_with_name(void);
 void nc_cleanup(void);
 void nc_init(void);
+void send_data_to_server(int input_code);
 
 #endif // CLIENT_H

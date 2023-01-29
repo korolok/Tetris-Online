@@ -175,3 +175,11 @@ void nc_init(void)
     color_set(8, 0);
     keypad(stdscr, 1);
 }
+
+void send_data_to_server(int input_code)
+{
+    if (input_code != 0)
+    {
+        send_data(sock, &input_code, sizeof(input_code));
+    }
+}
