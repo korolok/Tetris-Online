@@ -114,35 +114,26 @@ unsigned int receive_data_from_clients(void)
     return keycode;
 }
 
-void send_data_to_clients(void* buffer, unsigned int buff_size)
+bool send_data_to_clients(void *buffer, unsigned int buff_size)
 {
     for (unsigned int i = 0; i < players_connected; ++i)
     {
-        send_data(players[i].socket, buffer, buff_size);
-    }
-}
-
-void cleanup(void)
-{
-    close_socket(listener_socket);
-
-    if (players_connected != 0)
-    {
-        for (unsigned int i = 0; i < players_connected; ++i)
+        if (!send_data(players[i].socket, buffer, buff_size))
         {
-            close_socket(players[i].socket);
+            return false;
         }
     }
+    return true; 
 }
 
 void calculate_drop_down_time(void)
 {
     long long delta_time = 0;
 
-    current_time = get_timestamp_in_milliseconds();
-    delta_time = current_time - previous_time;
-    previous_time = current_time;
-    drop_down_time += delta_time;
+    current_game_time = get_timestamp_in_milliseconds();
+    delta_time = current_game_time - previous_game_time;
+    previous_game_time = current_game_time;
+    shape_drop_down_time += delta_time;
 }
 
 void process_data(void)
@@ -155,9 +146,9 @@ void process_data(void)
 
     calculate_drop_down_time();
 
-    if (drop_down_time >= (800 - 50 * get_game_level()))
+    if (shape_drop_down_time >= (800 - 50 * get_game_level()))
     {
-        drop_down_time = 0;
+        shape_drop_down_time = 0;
         shape_drop();
         form_cup();
     }
@@ -180,8 +171,23 @@ void process_data(void)
     }
 }
 
-void start_game(void)
+void update_server_time(long long* send_data_time)
 {
+    static long long    current_server_time     = 0;
+    static long long    previous_server_time    = 0;
+    long long           delta_time              = 0;
+
+    current_server_time = get_timestamp_in_milliseconds();
+    delta_time = current_server_time - previous_server_time;
+    previous_server_time = current_server_time;
+    *send_data_time += delta_time;
+}
+
+void start_game(void)
+{   
+    char buffer_to_send[1024] = {0};
+
+    set_random_seed();
     set_user_count_pointer(&players_connected);
 
     for (int i = 0; i < (int)players_connected; ++i)
@@ -199,8 +205,6 @@ void start_game(void)
             break;
         }
     }
-    
-    char buffer_to_send[1024] = {0};
 
     for (int i = 0; i < (int)players_connected; ++i)
     {
@@ -250,10 +254,51 @@ void start_game(void)
     send_data_to_clients(buffer_to_send, strlen(buffer_to_send));
 }
 
+void cleanup(void)
+{
+    close_socket(listener_socket);
+
+    if (players_connected != 0)
+    {
+        for (unsigned int i = 0; i < players_connected; ++i)
+        {
+            close_socket(players[i].socket);
+        }
+    }
+}
+
 int main(void)
 {
+    long long send_data_time = 0;
+	
     initialize_server();
     accept_clients(&should_stop_accepting_clients);
+    start_game();
+    set_clients_non_blocking();
+	
+    while (!get_game_over())
+    {
+        current_key = receive_data_from_clients();
+        process_data();
+		update_server_time(&send_data_time);
+
+        int total_score = get_total_score();
+
+        if (send_data_time >= 100)
+        {
+            if (!send_data_to_clients(get_cup_to_send(), get_cup_to_send_size()))
+            {
+                break;
+            }
+            if (!send_data_to_clients(&total_score, sizeof(total_score)))
+            {
+                break;
+            }
+			
+            send_data_time = 0;
+        }
+		
+    }
 
     cleanup();
 
