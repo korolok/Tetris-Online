@@ -79,7 +79,7 @@ int print_game_menu(void)
     const char menu[2][20] = {
         "Setup as a server",
         "Proceed as a client"
-        };
+    };
 
     unsigned menu_option = 0;
     setup_terminal();
@@ -182,4 +182,17 @@ void send_data_to_server(int input_code)
     {
         send_data(sock, &input_code, sizeof(input_code));
     }
+}
+
+int receive_data_from_server()
+{
+    if (!receive_data(sock, cup, CUP_SIZE, &bytes_received))
+    {
+        return 1;
+    }
+    if (!receive_data(sock, &score, sizeof(score), &bytes_received))
+    {
+        return 1;
+    }
+    return 0;
 }
