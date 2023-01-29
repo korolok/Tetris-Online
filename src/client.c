@@ -196,3 +196,24 @@ int receive_data_from_server()
     }
     return 0;
 }
+
+int procces_input(int key_code)
+{
+    if (key_code == KEY_UP)
+    {
+        return KEY_ARROW_UP;
+    }
+    else if (key_code == KEY_DOWN)
+    {
+        return KEY_ARROW_DOWN;
+    }
+    else if (key_code == KEY_LEFT)
+    {
+        return KEY_ARROW_LEFT;
+    }
+    else if (key_code == KEY_RIGHT)
+    {
+        return KEY_ARROW_RIGHT;
+    }
+    return 0;
+}
