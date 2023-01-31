@@ -39,12 +39,13 @@ int create_listener_socket(void)
     struct sockaddr_in listener_info = {0};
     int enable = 1;
 
+    bzero((void*)&listener_info, sizeof(listener_info));
+
     sock_listener = create_socket_tcp();
     set_socket_non_blocking(sock_listener);
-    setsockopt(sock_listener, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
 
     listener_info.sin_family = AF_INET;
-    listener_info.sin_addr.s_addr = inet_addr(LOCALHOST);
+    listener_info.sin_addr.s_addr = htonl(INADDR_ANY);
     listener_info.sin_port = htons(DEFAULT_PORT);
 
     if (bind(sock_listener, (struct sockaddr*)&listener_info, sizeof(listener_info)) == -1)
