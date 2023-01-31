@@ -37,13 +37,17 @@ int create_listener_socket(void)
 {
     int sock_listener = 0;
     struct sockaddr_in listener_info = {0};
-    int enable = 1;
 
     bzero((void*)&listener_info, sizeof(listener_info));
 
     sock_listener = create_socket_tcp();
     set_socket_non_blocking(sock_listener);
 
+    if (setsockopt(sock_listener, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+    {
+        net_error("Failed to set SO_REUSEADDR\n", false);
+    }
+    
     listener_info.sin_family = AF_INET;
     listener_info.sin_addr.s_addr = htonl(INADDR_ANY);
     listener_info.sin_port = htons(DEFAULT_PORT);
