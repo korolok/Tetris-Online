@@ -2,17 +2,17 @@
 #include "client.h"
 #include "keycodes.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     int client_input = 0;
 
     initialize();
 
     system("clear");
-    printf("Enter you name: ");
+    printf("Enter your name: ");
     scanf("%s", client_name);
 
-    start_game_menu();
+    start_game_menu(argv[0]);
 
     system("clear");
     receive_data(sock, client_shape_info, CLIENT_SHAPE_INFO_SIZE, &bytes_received);
@@ -26,12 +26,12 @@ int main()
         int input_code = procces_input(client_input);
 
         send_data_to_server(input_code);
-        
+
         if (!receive_data_from_server())
         {
             break;
         }
-        
+
         draw_cup();
     }
 
@@ -43,6 +43,7 @@ int main()
     system("clear");
     printf("\n\n\n\n\n\t\t Game over! Total score = %d\n", score);
     sleep(5);
+    (void)argc;
 
     return 0;
 }
@@ -53,18 +54,11 @@ void initialize(void)
     memset(client_name, 0, CLIENT_NAME_SIZE);
     signal(SIGUSR1, SIG_IGN);
     signal(SIGINT, SIG_IGN);
+    signal(SIGWINCH, resize_win);
     sock = create_client_socket();
 }
 
-void exit_handler(void)
-{
-    clear();
-    nc_cleanup();
-    close_socket(sock);
-    system("clear");
-}
-
-void start_game_menu(void)
+void start_game_menu(char *path_pointer)
 {
     char server_address[20];
 
@@ -81,7 +75,7 @@ void start_game_menu(void)
     {
         setup_as_a_server = true;
 
-        if (pthread_create(&server_thread, NULL, &start_server, NULL) < 0)
+        if (pthread_create(&server_thread, NULL, (void *)&start_server, path_pointer) < 0)
         {
             printf("Could not create server thread\n");
             exit(EXIT_FAILURE);
@@ -156,20 +150,38 @@ int print_game_menu(void)
     return 0;
 }
 
-void setup_terminal(void)
+void *start_server(char *path_pointer)
 {
-    struct termios custom;
-    int fd = fileno(stdin);
-    tcgetattr(fd, &save);
-    custom = save;
-    custom.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(fd, TCSANOW, &custom);
+    char app_path_buffer[FILENAME_MAX] = {0};
+
+    for (size_t i = 0; i < strlen(path_pointer); ++i)
+    {
+        app_path_buffer[i] = path_pointer[i];
+
+        if (i > strlen(path_pointer) - 8)
+        {
+            strcat(app_path_buffer, "server");
+            break;
+        }
+    }
+
+    execution_result = system(app_path_buffer);
+
+    if (execution_result < 0)
+    {
+        perror("Server not found");
+        exit(EXIT_FAILURE);
+    }
+
+    return (void *)&execution_result;
 }
 
-void *start_server()
+void exit_handler(void)
 {
-    execution_result = system("./bin/server");
-    return (void *)&execution_result;
+    clear();
+    nc_cleanup();
+    close_socket(sock);
+    system("clear");
 }
 
 void reply_with_name(void)
@@ -182,23 +194,6 @@ void reply_with_name(void)
     {
         send_data(sock, client_name, 16);
     }
-}
-
-void nc_cleanup(void)
-{
-    endwin();
-}
-
-void nc_init(void)
-{
-    initscr();
-    noecho();
-    curs_set(0);
-    halfdelay(1);
-    start_color();
-    init_pair(8, COLOR_WHITE, COLOR_BLACK);
-    color_set(8, 0);
-    keypad(stdscr, 1);
 }
 
 void send_data_to_server(int input_code)
@@ -241,19 +236,6 @@ int procces_input(int key_code)
         return KEY_ARROW_RIGHT;
     }
     return 0;
-}
-
-void nc_setup_colors(void)
-{
-    start_color();
-
-    init_pair(1, COLOR_WHITE, COLOR_WHITE);
-    init_pair(2, COLOR_YELLOW, COLOR_YELLOW);
-    init_pair(3, COLOR_MAGENTA, COLOR_MAGENTA);
-    init_pair(4, COLOR_CYAN, COLOR_CYAN);
-    init_pair(5, COLOR_BLUE, COLOR_BLUE);
-    init_pair(6, COLOR_RED, COLOR_RED);
-    init_pair(7, COLOR_GREEN, COLOR_GREEN);
 }
 
 void draw_cup(void)
@@ -299,8 +281,8 @@ void draw_cup(void)
         }
         else if (cup[i] == 'Z')
         {
-            addch('Z' | COLOR_PAIR(6));
-            addch('Z' | COLOR_PAIR(6));
+            addch('Z' | COLOR_PAIR(1));
+            addch('Z' | COLOR_PAIR(1));
         }
         else if (cup[i] == 'S')
         {
@@ -314,7 +296,7 @@ void draw_cup(void)
     }
 
     mvwprintw(stdscr, 5, 25, "SCORE: %d", score);
-    
+
     int row = 6;
     int col = 25;
 
@@ -323,6 +305,49 @@ void draw_cup(void)
         if (client_shape_info[i] != '\n')
         {
             mvwprintw(stdscr, row, col, "%c", client_shape_info[i]);
+
+            if (client_shape_info[i] == 'O')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
+            }
+            else if (client_shape_info[i] == 'T')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
+            }
+            else if (client_shape_info[i] == 'I')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
+            }
+            else if (client_shape_info[i] == 'J')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
+            }
+            else if (client_shape_info[i] == 'L')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
+            }
+            else if (client_shape_info[i] == 'Z')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
+            }
+            else if (client_shape_info[i] == 'S')
+            {
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
+                col++;
+                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
+            }
             ++col;
         }
         else if (client_shape_info[i] == '\n')
@@ -332,4 +357,50 @@ void draw_cup(void)
         }
     }
     refresh();
+}
+
+void setup_terminal(void)
+{
+    struct termios custom;
+    int fd = fileno(stdin);
+    tcgetattr(fd, &save);
+    custom = save;
+    custom.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(fd, TCSANOW, &custom);
+}
+
+void nc_init(void)
+{
+    initscr();
+    noecho();
+    curs_set(0);
+    halfdelay(1);
+    start_color();
+    init_pair(8, COLOR_WHITE, COLOR_BLACK);
+    color_set(8, 0);
+    keypad(stdscr, 1);
+}
+
+void nc_setup_colors(void)
+{
+    start_color();
+
+    init_pair(1, COLOR_WHITE, COLOR_WHITE);
+    init_pair(2, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(3, COLOR_MAGENTA, COLOR_MAGENTA);
+    init_pair(4, COLOR_CYAN, COLOR_CYAN);
+    init_pair(5, COLOR_BLUE, COLOR_BLUE);
+    init_pair(6, COLOR_RED, COLOR_RED);
+    init_pair(7, COLOR_GREEN, COLOR_GREEN);
+}
+
+void nc_cleanup(void)
+{
+    endwin();
+}
+
+void resize_win()
+{
+    getmaxyx(stdscr, size_win_y, size_win_x);
+    wresize(stdscr, size_win_y, size_win_x);
 }

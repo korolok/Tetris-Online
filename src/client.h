@@ -17,6 +17,9 @@
 
 struct termios save;
 
+int size_win_y = 0;
+int size_win_x = 0;
+
 int sock               = 0;
 bool setup_as_a_server = false;
 
@@ -32,18 +35,24 @@ pthread_t server_thread = 0;
 int execution_result    = 0;
 
 void initialize(void);
-void exit_handler(void);
-void start_game_menu(void);
+
+void start_game_menu(char *path_pointer);
 int print_game_menu(void);
-void setup_terminal(void);
-void *start_server();
+void *start_server(char *path_pointer);
+
+void exit_handler(void);
+
 void reply_with_name(void);
-void nc_cleanup(void);
-void nc_init(void);
 void send_data_to_server(int input_code);
-bool receive_data_from_server();
+bool receive_data_from_server(void);
+
 int procces_input(int key_code);
-void nc_setup_colors(void);
 void draw_cup(void);
+
+void setup_terminal(void);
+void nc_init(void);
+void nc_setup_colors(void);
+void nc_cleanup(void);
+void resize_win();
 
 #endif // CLIENT_H

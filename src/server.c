@@ -138,13 +138,20 @@ void calculate_drop_down_time(void)
 
 void process_data(void)
 {
+    calculate_drop_down_time();
+
     if (current_key != 0)
     {
         shape_control(current_key);
+        if(current_key == 2)
+        {
+            //если клавиша будет стрелкой вниз, 
+            //приравниваем время падения фигуры к константе,
+            //меньшей чем время падения для плавности игры
+            shape_drop_down_time = 150;
+        }
         current_key = 0;
     }
-
-    calculate_drop_down_time();
 
     if (shape_drop_down_time >= (800 - 50 * get_game_level()))
     {
