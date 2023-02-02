@@ -39,4 +39,4 @@ int get_shapes_type(int player_number);
 int get_total_score(void);
 int get_game_level(void);
 
-#endif //GAME_H
+#endif // GAME_H

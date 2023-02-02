@@ -23,6 +23,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "util.h"
+
 #define DEFAULT_PORT    7070
 #define LOCALHOST       "127.0.0.1"
 #define MAX_BACKLOG     128
@@ -48,4 +50,4 @@ void set_socket_non_blocking(int socket_descriptor);
 void close_socket(int socket_to_close_descriptor);
 void close_sockets(int* socket_buffer, unsigned int size);
 
-#endif //NET_H
+#endif // NET_H

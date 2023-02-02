@@ -9,6 +9,7 @@ void interrupt_handler(int sigint)
     printf("Signal accepted SIGINT: %d\n", sigint);
 #endif
     should_stop_accepting_clients = true;
+    make_log("Server: SIGINT");
     cleanup();
 }
 
@@ -18,6 +19,7 @@ void stop_accepting_clients_handler(int sigusr)
     printf("Signal accepted SIGUSR1: %d stopped accepting clients\n", sigusr);
 #endif
     should_stop_accepting_clients = true;
+    make_log("Server: SIGUSR1");
 }
 
 void initialize_server(void)
@@ -29,6 +31,8 @@ void initialize_server(void)
     //  Setup signals
     signal(SIGUSR1, stop_accepting_clients_handler);
     signal(SIGINT, interrupt_handler);
+
+    make_log("Server: initialized");
 }
 
 void accept_clients(bool* stop_accepting)
@@ -70,7 +74,8 @@ void accept_clients(bool* stop_accepting)
         
         strcpy(players[players_connected].name, name_buffer);
         printf("Player %s connected\n", players[players_connected].name);
-        
+        make_log("Server: client connected");
+
         ++players_connected;
 	}
 
@@ -272,6 +277,7 @@ void cleanup(void)
             close_socket(players[i].socket);
         }
     }
+
 }
 
 int main(void)

@@ -18,6 +18,8 @@ static void net_error(const char* message, bool std_err)
         fprintf(stderr, message, "%s");
     }
 
+    make_log(message);
+
     exit(EXIT_FAILURE);
 }
 
@@ -56,7 +58,7 @@ int create_listener_socket(void)
     {
         net_error("Failed to bind socket\n", false);
     }
-    
+
     return sock_listener;
 }
 
@@ -117,6 +119,7 @@ void connect_to_server(int client_socket_sescriptor, const char* server_address)
     {
         net_error("Failed to connect to the server\n", false);
     }
+
 }
 
 bool send_data(int socket_descriptor, void* data_buffer, unsigned int buff_size)
@@ -149,10 +152,7 @@ void set_socket_non_blocking(int socket_descriptor)
 
 void close_socket(int socket_to_close_descriptor)
 {
-    if (close(socket_to_close_descriptor) == -1)
-    {
-        net_error("Failed to close socket\n", false);
-    }
+    close(socket_to_close_descriptor);
 }
 
 void close_sockets(int* socket_buffer, unsigned int size)

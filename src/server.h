@@ -51,4 +51,4 @@ void cleanup(void);
 
 int main(void);
 
-#endif //   SERVER_H
+#endif // SERVER_H

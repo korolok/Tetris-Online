@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
     }
 
     system("clear");
-    printf("\n\n\n\n\n\t\t Game over! Total score = %d\n", score);
-    sleep(5);
+    printf("\n\n\n\n\n\t\t Game over! Total score: %d\n", score);
+    sleep(3);
     (void)argc;
 
     return 0;
@@ -56,6 +56,8 @@ void initialize(void)
     signal(SIGINT, SIG_IGN);
     signal(SIGWINCH, resize_win);
     sock = create_client_socket();
+
+    make_log("Client: initialized");
 }
 
 void start_game_menu(char *path_pointer)
@@ -165,6 +167,7 @@ void *start_server(char *path_pointer)
         }
     }
 
+    make_log("Client: starting up server");
     execution_result = system(app_path_buffer);
 
     if (execution_result < 0)
@@ -182,6 +185,8 @@ void exit_handler(void)
     nc_cleanup();
     close_socket(sock);
     system("clear");
+
+    make_log("Client: exiting");
 }
 
 void reply_with_name(void)
@@ -356,6 +361,7 @@ void draw_cup(void)
             col = 25;
         }
     }
+
     refresh();
 }
 
@@ -379,6 +385,8 @@ void nc_init(void)
     init_pair(8, COLOR_WHITE, COLOR_BLACK);
     color_set(8, 0);
     keypad(stdscr, 1);
+
+    make_log("Client: ncurses initialized");
 }
 
 void nc_setup_colors(void)
@@ -397,6 +405,7 @@ void nc_setup_colors(void)
 void nc_cleanup(void)
 {
     endwin();
+    make_log("Client: cleaning up ncurses");
 }
 
 void resize_win()
