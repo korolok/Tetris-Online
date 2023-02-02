@@ -6,13 +6,13 @@ int main(int argc, char *argv[])
 {   
     int client_input = 0;
 
-    initialize();
+    initialize(&argc, argv[0]);
 
     system("clear");
     printf("Enter your name: ");
     scanf("%s", client_name);
 
-    start_game_menu(argv[0]);
+    start_game_menu();
 
     system("clear");
     receive_data(sock, client_shape_info, CLIENT_SHAPE_INFO_SIZE, &bytes_received);
@@ -48,19 +48,20 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void initialize(void)
+void initialize(int *argc, char *path_pointer)
 {
     atexit(exit_handler);
+    set_path_to_root(path_pointer);
     memset(client_name, 0, CLIENT_NAME_SIZE);
     signal(SIGUSR1, SIG_IGN);
     signal(SIGINT, SIG_IGN);
     signal(SIGWINCH, resize_win);
     sock = create_client_socket();
-
+    (void)argc;
     make_log("Client: initialized");
 }
 
-void start_game_menu(char *path_pointer)
+void start_game_menu(void)
 {
     char server_address[20];
 
@@ -77,7 +78,7 @@ void start_game_menu(char *path_pointer)
     {
         setup_as_a_server = true;
 
-        if (pthread_create(&server_thread, NULL, (void *)&start_server, path_pointer) < 0)
+        if (pthread_create(&server_thread, NULL, (void *)&start_server, NULL) < 0)
         {
             printf("Could not create server thread\n");
             exit(EXIT_FAILURE);
@@ -85,9 +86,7 @@ void start_game_menu(char *path_pointer)
         pthread_detach(server_thread);
 
         sleep(1);
-
         connect_to_server(sock, LOCALHOST);
-
         reply_with_name();
 
         getchar();
@@ -152,22 +151,16 @@ int print_game_menu(void)
     return 0;
 }
 
-void *start_server(char *path_pointer)
+void *start_server(void)
 {
     char app_path_buffer[FILENAME_MAX] = {0};
-
-    for (size_t i = 0; i < strlen(path_pointer); ++i)
-    {
-        app_path_buffer[i] = path_pointer[i];
-
-        if (i > strlen(path_pointer) - 8)
-        {
-            strcat(app_path_buffer, "server");
-            break;
-        }
-    }
+    
+    app_path_buffer[0] = '.';
+    app_path_buffer[1] = '/';
+    concat_to_root_path("server", app_path_buffer);
 
     make_log("Client: starting up server");
+    
     execution_result = system(app_path_buffer);
 
     if (execution_result < 0)

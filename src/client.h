@@ -34,11 +34,11 @@ int bytes_received = 0;
 pthread_t server_thread = 0;
 int execution_result    = 0;
 
-void initialize(void);
+void initialize(int *argc, char *path_pointer);
 
-void start_game_menu(char *path_pointer);
+void start_game_menu(void);
 int print_game_menu(void);
-void *start_server(char *path_pointer);
+void *start_server(void);
 
 void exit_handler(void);
 

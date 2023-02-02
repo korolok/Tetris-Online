@@ -32,7 +32,7 @@ long long shape_drop_down_time  = 0;
 void interrupt_handler(int sigint);
 void stop_accepting_clients_handler(int sigusr);
 
-void initialize_server(void);
+void initialize_server(int *argc, char *path_pointer);
 void accept_clients(bool* stop_accepting);
 void set_clients_non_blocking(void);
 
@@ -49,6 +49,6 @@ void start_game(void);
 
 void cleanup(void);
 
-int main(void);
+int main(int argc, char* argv[]);
 
 #endif // SERVER_H

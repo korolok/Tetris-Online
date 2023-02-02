@@ -22,8 +22,9 @@ void stop_accepting_clients_handler(int sigusr)
     make_log("Server: SIGUSR1");
 }
 
-void initialize_server(void)
+void initialize_server(int *argc, char *path_pointer)
 {
+    set_path_to_root(path_pointer);
     //  Setup server
     listener_socket = create_listener_socket();
     listen_for_new_connections(listener_socket);
@@ -31,7 +32,7 @@ void initialize_server(void)
     //  Setup signals
     signal(SIGUSR1, stop_accepting_clients_handler);
     signal(SIGINT, interrupt_handler);
-
+    (void)argc;
     make_log("Server: initialized");
 }
 
@@ -280,11 +281,11 @@ void cleanup(void)
 
 }
 
-int main(void)
+int main(int argc, char* argv[])
 {
     long long send_data_time = 0;
 	
-    initialize_server();
+    initialize_server(&argc, argv[0]);
     accept_clients(&should_stop_accepting_clients);
     start_game();
     set_clients_non_blocking();
