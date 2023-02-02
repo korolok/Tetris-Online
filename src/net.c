@@ -37,8 +37,9 @@ int create_socket_tcp(void)
 
 int create_listener_socket(void)
 {
-    int sock_listener = 0;
-    struct sockaddr_in listener_info = {0};
+    int     sock_listener = 0;
+    struct  sockaddr_in listener_info = {0};
+    int     user_defined_port = 0;
 
     bzero((void*)&listener_info, sizeof(listener_info));
 
@@ -49,11 +50,19 @@ int create_listener_socket(void)
     {
         net_error("Failed to set SO_REUSEADDR\n", false);
     }
-    
+
     listener_info.sin_family = AF_INET;
     listener_info.sin_addr.s_addr = htonl(INADDR_ANY);
-    listener_info.sin_port = htons(DEFAULT_PORT);
 
+    if (get_port_from_file(&user_defined_port))
+    {
+        listener_info.sin_port = htons(user_defined_port);
+    }
+    else
+    {
+        listener_info.sin_port = htons(DEFAULT_PORT);
+    }
+    
     if (bind(sock_listener, (struct sockaddr*)&listener_info, sizeof(listener_info)) == -1)
     {
         net_error("Failed to bind socket\n", false);
@@ -69,9 +78,9 @@ int create_client_socket(void)
 
 int accept_client(int listener_socket_descriptor, bool is_silent)
 {
-    int new_client_sock = 0;
-    struct sockaddr_in new_client_info = {0};
-    int sock_size = sizeof(struct sockaddr_in);
+    int     new_client_sock = 0;
+    struct  sockaddr_in new_client_info = {0};
+    int     sock_size = sizeof(struct sockaddr_in);
 
     new_client_sock = accept(
         listener_socket_descriptor,
@@ -109,11 +118,20 @@ void listen_for_new_connections(int listener_socket_descriptor)
 
 void connect_to_server(int client_socket_sescriptor, const char* server_address)
 {
-    struct sockaddr_in server_info;
+    struct  sockaddr_in server_info;
+    int     user_defined_port = 0;
 
     server_info.sin_addr.s_addr = inet_addr(server_address);
     server_info.sin_family = AF_INET;
-    server_info.sin_port = htons(DEFAULT_PORT);
+
+    if (get_port_from_file(&user_defined_port))
+    {
+        server_info.sin_port = htons(user_defined_port);
+    }
+    else
+    {
+        server_info.sin_port = htons(DEFAULT_PORT);
+    }
 
     if (connect(client_socket_sescriptor , (struct sockaddr*)&server_info , sizeof(server_info)) < 0)
     {

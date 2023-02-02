@@ -3,7 +3,7 @@
 #include "keycodes.h"
 
 int main(int argc, char *argv[])
-{
+{   
     int client_input = 0;
 
     initialize();
@@ -105,7 +105,7 @@ int print_game_menu(void)
     unsigned menu_option = 0;
     setup_terminal();
 
-    while (1)
+    while (true)
     {
         system("clear");
         for (unsigned i = 0; i < 2; i++)
