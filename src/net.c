@@ -57,6 +57,7 @@ int create_listener_socket(void)
     if (get_port_from_file(&user_defined_port))
     {
         listener_info.sin_port = htons(user_defined_port);
+        printf("Using port: %d\n\n", user_defined_port);
     }
     else
     {

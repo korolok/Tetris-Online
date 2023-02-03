@@ -42,14 +42,14 @@ void set_path_to_root(char *path)
 {
     if (path[0] == '.')
     {
-        for (size_t i = 2; i < strlen(path) - 6; ++i)
+        for (size_t i = 2; i < strlen(path) - 13; ++i)
         {
             path_to_root_dir[i - 2] = path[i];
         }
     }
     else
     {
-        for (size_t i = 0; i < strlen(path) - 6; ++i)
+        for (size_t i = 0; i < strlen(path) - 13; ++i)
         {
             path_to_root_dir[i] = path[i];
         }

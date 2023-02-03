@@ -24,8 +24,10 @@ unsigned int initial_terminal_size_y = 0;
 int sock               = 0;
 bool setup_as_a_server = false;
 
-char cup[CUP_SIZE]  = {0};
-int score           = 0;
+char cup[CUP_SIZE]      = {0};
+int score               = 0;
+bool game_over          = false;
+bool client_start_game  = false;
 
 char client_name[CLIENT_NAME_SIZE]             = {0};
 char client_shape_info[CLIENT_SHAPE_INFO_SIZE] = {0};
@@ -40,6 +42,7 @@ void initialize(int *argc, char *path_pointer);
 void start_game_menu(void);
 int print_game_menu(void);
 void *start_server(void);
+void print_welcome_message(void);
 
 void exit_handler(void);
 void resize_term_handler();
@@ -55,6 +58,7 @@ void setup_terminal(void);
 void nc_init(void);
 void nc_setup_colors(void);
 void nc_cleanup(void);
+void game_over_handler();
 
 void get_terminal_size(unsigned int* buff_x, unsigned int* buff_y);
 

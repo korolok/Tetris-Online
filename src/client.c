@@ -6,20 +6,21 @@ int main(int argc, char *argv[])
 {   
     int client_input = 0;
 
-    initialize(&argc, argv[0]);
-
     system("clear");
-    printf("Enter your name: ");
-    scanf("%s", client_name);
-
+    initialize(&argc, argv[0]);
     start_game_menu();
 
-    system("clear");
+    if (client_start_game)
+    {
+        printf("Waiting for other clients...\n");
+    }
+
     receive_data(sock, client_shape_info, CLIENT_SHAPE_INFO_SIZE, &bytes_received);
+    signal(SIGINT, game_over_handler);
 
     nc_init();
 
-    while (client_input != KEY_ESCAPE)
+    while (client_input != KEY_ESCAPE && !game_over)
     {
         client_input = getch();
         flushinp();
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 
     if (setup_as_a_server)
     {
-        system("pkill server");
+        kill(0, SIGINT);
     }
 
     system("clear");
@@ -54,7 +55,6 @@ void initialize(int *argc, char *path_pointer)
     set_path_to_root(path_pointer);
     memset(client_name, 0, CLIENT_NAME_SIZE);
     signal(SIGUSR1, SIG_IGN);
-    signal(SIGINT, SIG_IGN);
     signal(SIGWINCH, resize_term_handler);
     sock = create_client_socket();
     get_terminal_size(&initial_terminal_size_x, &initial_terminal_size_y);
@@ -66,19 +66,24 @@ void initialize(int *argc, char *path_pointer)
 void start_game_menu(void)
 {
     char server_address[20];
-
-    system("clear");
+    
+    print_welcome_message();
 
     if (print_game_menu() == 1)
     {
+        client_start_game = true;
+        printf("Press Enter to continue\n\n");
         printf("Enter server adress: ");
         scanf("%s", server_address);
+        system("clear");
         connect_to_server(sock, server_address);
         reply_with_name();
     }
     else
     {
         setup_as_a_server = true;
+
+        printf("Press Enter to stop accepting clients\n");
 
         if (pthread_create(&server_thread, NULL, (void *)&start_server, NULL) < 0)
         {
@@ -98,6 +103,8 @@ void start_game_menu(void)
 
 int print_game_menu(void)
 {
+    nc_init();
+
     const char menu[2][20] = {
         "Setup as a server",
         "Proceed as a client"
@@ -108,46 +115,46 @@ int print_game_menu(void)
 
     while (true)
     {
-        system("clear");
+        erase();
+        printw("Press Enter to continue\n\n");
+
         for (unsigned i = 0; i < 2; i++)
         {
             if (i == menu_option)
             {
-                printf(">");
+                addch('>');
             }
             else
             {
-                printf(" ");
+                addch(' ');
             }
 
-            printf("%s\n", menu[i]);
+            printw("%s\n", menu[i]);
         }
 
-        if (getchar() == '\033')
+        switch (getch())
         {
-            getchar();
-            switch (getchar())
-            {
-            case 'A':
+            case KEY_UP:
                 if (menu_option)
                 {
                     menu_option--;
                 }
                 break;
 
-            case 'B':
+            case KEY_DOWN:
                 if (menu_option != 1)
                 {
                     menu_option++;
                 }
                 break;
 
-            case 'C':
-                system("clear");
+            // 10 = key enter code
+            case 10:
+                clear();
                 tcsetattr(0, TCSANOW, &save);
+                nc_cleanup();
                 return menu_option;
                 break;
-            }
         }
     }
     return 0;
@@ -159,7 +166,7 @@ void *start_server(void)
     
     app_path_buffer[0] = '.';
     app_path_buffer[1] = '/';
-    concat_to_root_path("server", app_path_buffer);
+    concat_to_root_path("tetris_server", app_path_buffer);
 
     make_log("Client: starting up server");
     
@@ -172,6 +179,27 @@ void *start_server(void)
     }
 
     return (void *)&execution_result;
+}
+
+void print_welcome_message(void)
+{
+    int row = 0;
+    int col = 0;
+
+    nc_init();
+    
+    init_pair(9, COLOR_YELLOW, COLOR_BLACK);
+    attron(COLOR_PAIR(9));
+    
+    getmaxyx(stdscr, row, col);
+    mvwprintw(stdscr, (row / 2) - 1, (col - 25) / 2, "Welcome To Tetris Online!");
+    mvwprintw(stdscr, (row / 2) + 1, (col - 16) / 2, "Type your name: ");
+    echo();
+
+    attroff(COLOR_PAIR(9));
+
+    scanw("%s", client_name);
+    nc_cleanup();
 }
 
 void exit_handler(void)
@@ -200,7 +228,8 @@ void resize_term_handler()
         clear();
         nc_init();
     }
-    else {
+    else 
+    {
         getmaxyx(stdscr, curr_term_size_y, curr_term_size_x);
         wresize(stdscr, curr_term_size_y, curr_term_size_x);
     }
@@ -328,47 +357,50 @@ void draw_cup(void)
         {
             mvwprintw(stdscr, row, col, "%c", client_shape_info[i]);
 
-            if (client_shape_info[i] == 'O')
+            if (col < 28)
             {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
-            }
-            else if (client_shape_info[i] == 'T')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
-            }
-            else if (client_shape_info[i] == 'I')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
-            }
-            else if (client_shape_info[i] == 'J')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
-            }
-            else if (client_shape_info[i] == 'L')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
-            }
-            else if (client_shape_info[i] == 'Z')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
-            }
-            else if (client_shape_info[i] == 'S')
-            {
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
-                col++;
-                mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
+                if (client_shape_info[i] == 'O')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(2));
+                }
+                else if (client_shape_info[i] == 'T')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(3));
+                }
+                else if (client_shape_info[i] == 'I')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(4));
+                }
+                else if (client_shape_info[i] == 'J')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(5));
+                }
+                else if (client_shape_info[i] == 'L')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(6));
+                }
+                else if (client_shape_info[i] == 'Z')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(1));
+                }
+                else if (client_shape_info[i] == 'S')
+                {
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
+                    col++;
+                    mvwaddch(stdscr, row, col, ' ' | COLOR_PAIR(7));
+                }
             }
             ++col;
         }
@@ -423,6 +455,11 @@ void nc_cleanup(void)
 {
     endwin();
     make_log("Client: cleaning up ncurses");
+}
+
+void game_over_handler()
+{
+    game_over = true;
 }
 
 void get_terminal_size(unsigned int* buff_x, unsigned int* buff_y)
