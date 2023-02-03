@@ -55,9 +55,11 @@ void initialize(int *argc, char *path_pointer)
     memset(client_name, 0, CLIENT_NAME_SIZE);
     signal(SIGUSR1, SIG_IGN);
     signal(SIGINT, SIG_IGN);
-    signal(SIGWINCH, resize_win);
+    signal(SIGWINCH, resize_term_handler);
     sock = create_client_socket();
+    get_terminal_size(&initial_terminal_size_x, &initial_terminal_size_y);
     (void)argc;
+
     make_log("Client: initialized");
 }
 
@@ -180,6 +182,28 @@ void exit_handler(void)
     system("clear");
 
     make_log("Client: exiting");
+}
+
+void resize_term_handler()
+{
+    unsigned int curr_term_size_x = 0;
+    unsigned int curr_term_size_y = 0;
+
+    get_terminal_size(&curr_term_size_x, &curr_term_size_y);
+
+    if (
+        curr_term_size_x < initial_terminal_size_x ||
+        curr_term_size_y < initial_terminal_size_y
+    ) {
+        nc_cleanup();
+        refresh();
+        clear();
+        nc_init();
+    }
+    else {
+        getmaxyx(stdscr, curr_term_size_y, curr_term_size_x);
+        wresize(stdscr, curr_term_size_y, curr_term_size_x);
+    }
 }
 
 void reply_with_name(void)
@@ -401,8 +425,11 @@ void nc_cleanup(void)
     make_log("Client: cleaning up ncurses");
 }
 
-void resize_win()
+void get_terminal_size(unsigned int* buff_x, unsigned int* buff_y)
 {
-    getmaxyx(stdscr, size_win_y, size_win_x);
-    wresize(stdscr, size_win_y, size_win_x);
+    struct winsize terminal_size;
+
+    ioctl(0, TIOCGWINSZ, &terminal_size);
+    *buff_x = terminal_size.ws_col;
+    *buff_y = terminal_size.ws_row;
 }

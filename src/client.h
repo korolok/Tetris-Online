@@ -5,6 +5,7 @@
 #include <ncurses.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <pthread.h>
 #include "util.h"
 
@@ -17,13 +18,13 @@
 
 struct termios save;
 
-int size_win_y = 0;
-int size_win_x = 0;
+unsigned int initial_terminal_size_x = 0;
+unsigned int initial_terminal_size_y = 0;
 
 int sock               = 0;
 bool setup_as_a_server = false;
 
-char cup[CUP_SIZE] = {0};
+char cup[CUP_SIZE]  = {0};
 int score           = 0;
 
 char client_name[CLIENT_NAME_SIZE]             = {0};
@@ -41,6 +42,7 @@ int print_game_menu(void);
 void *start_server(void);
 
 void exit_handler(void);
+void resize_term_handler();
 
 void reply_with_name(void);
 void send_data_to_server(int input_code);
@@ -53,6 +55,7 @@ void setup_terminal(void);
 void nc_init(void);
 void nc_setup_colors(void);
 void nc_cleanup(void);
-void resize_win();
+
+void get_terminal_size(unsigned int* buff_x, unsigned int* buff_y);
 
 #endif // CLIENT_H
